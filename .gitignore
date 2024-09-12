@@ -11,4 +11,6 @@
 Thumbs.db
 # 忽略根目录下的 .env 文件
 .env
+.idea/
+
 
