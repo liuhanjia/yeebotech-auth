@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/check-token": {
+        "/auth/check-token": {
             "post": {
                 "description": "检查当前 Token 的有效时间",
                 "consumes": [
@@ -52,28 +52,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Token status",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-float64"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "401": {
                         "description": "Invalid token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     }
                 }
             }
         },
-        "/login": {
+        "/auth/login": {
             "post": {
                 "description": "用户通过用户名和密码进行登录",
                 "consumes": [
@@ -101,63 +98,25 @@ const docTemplate = `{
                     "200": {
                         "description": "token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "401": {
                         "description": "Invalid password",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     }
                 }
             }
         },
-        "/profile": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "获取当前登录用户的信息",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "获取用户信息",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "用户信息",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/refresh-token": {
+        "/auth/refresh-token": {
             "post": {
                 "description": "使用刷新 Token 获取新的访问 Token",
                 "consumes": [
@@ -185,28 +144,25 @@ const docTemplate = `{
                     "200": {
                         "description": "New token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "401": {
                         "description": "Invalid refresh token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     }
                 }
             }
         },
-        "/register": {
+        "/auth/register": {
             "post": {
                 "description": "用户通过用户名和密码进行注册",
                 "consumes": [
@@ -234,22 +190,53 @@ const docTemplate = `{
                     "200": {
                         "description": "User registered successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
                         }
                     },
                     "500": {
                         "description": "Failed to register user",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/controllers.ApiResult-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取当前登录用户的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户 userID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户信息",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ApiResult-models_User"
                         }
                     }
                 }
@@ -257,6 +244,102 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ApiData-float64": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "改为 interface{} 类型"
+                },
+                "expires_in": {
+                    "description": "以秒为单位的剩余时间",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.ApiData-models_User": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "改为 interface{} 类型"
+                },
+                "expires_in": {
+                    "description": "以秒为单位的剩余时间",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.ApiData-string": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "改为 interface{} 类型"
+                },
+                "expires_in": {
+                    "description": "以秒为单位的剩余时间",
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.ApiResult-float64": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.ApiData-float64"
+                },
+                "error_details": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ApiResult-models_User": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.ApiData-models_User"
+                },
+                "error_details": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ApiResult-string": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/controllers.ApiData-string"
+                },
+                "error_details": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.CheckTokenRequest": {
             "type": "object",
             "properties": {
@@ -310,7 +393,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "ApiKeyAuth": {
-            "description": "JWT Token",
+            "description": "JWT Token (format: Bearer \u003ctoken\u003e)",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -321,7 +404,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8081",
+	Host:             "localhost:8082",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "JWT Auth API",

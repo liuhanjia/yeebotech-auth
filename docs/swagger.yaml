@@ -1,5 +1,68 @@
 basePath: /
 definitions:
+  controllers.ApiData-float64:
+    properties:
+      content:
+        description: 改为 interface{} 类型
+      expires_in:
+        description: 以秒为单位的剩余时间
+        type: integer
+    type: object
+  controllers.ApiData-models_User:
+    properties:
+      content:
+        description: 改为 interface{} 类型
+      expires_in:
+        description: 以秒为单位的剩余时间
+        type: integer
+    type: object
+  controllers.ApiData-string:
+    properties:
+      content:
+        description: 改为 interface{} 类型
+      expires_in:
+        description: 以秒为单位的剩余时间
+        type: integer
+    type: object
+  controllers.ApiResult-float64:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.ApiData-float64'
+      error_details:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  controllers.ApiResult-models_User:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.ApiData-models_User'
+      error_details:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  controllers.ApiResult-string:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/controllers.ApiData-string'
+      error_details:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   controllers.CheckTokenRequest:
     properties:
       token:
@@ -33,7 +96,7 @@ definitions:
     - password
     - username
     type: object
-host: localhost:8081
+host: localhost:8082
 info:
   contact:
     email: support@swagger.io
@@ -47,7 +110,7 @@ info:
   title: JWT Auth API
   version: "1.0"
 paths:
-  /check-token:
+  /auth/check-token:
     post:
       consumes:
       - application/json
@@ -65,22 +128,19 @@ paths:
         "200":
           description: Token status
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-float64'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "401":
           description: Invalid token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
       summary: 检查 Token 是否快过期
       tags:
       - 用户
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -98,44 +158,19 @@ paths:
         "200":
           description: token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "401":
           description: Invalid password
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
       summary: 用户登录
       tags:
       - 用户
-  /profile:
-    get:
-      description: 获取当前登录用户的信息
-      parameters:
-      - description: User ID
-        in: path
-        name: userID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 用户信息
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: 获取用户信息
-      tags:
-      - 用户
-  /refresh-token:
+  /auth/refresh-token:
     post:
       consumes:
       - application/json
@@ -153,22 +188,19 @@ paths:
         "200":
           description: New token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "401":
           description: Invalid refresh token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
       summary: 刷新 Token
       tags:
       - 用户
-  /register:
+  /auth/register:
     post:
       consumes:
       - application/json
@@ -186,24 +218,42 @@ paths:
         "200":
           description: User registered successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
         "500":
           description: Failed to register user
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controllers.ApiResult-string'
       summary: 用户注册
+      tags:
+      - 用户
+  /user/profile:
+    get:
+      description: 获取当前登录用户的信息
+      parameters:
+      - description: 用户 userID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户信息
+          schema:
+            $ref: '#/definitions/controllers.ApiResult-models_User'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户信息
       tags:
       - 用户
 securityDefinitions:
   ApiKeyAuth:
-    description: JWT Token
+    description: 'JWT Token (format: Bearer <token>)'
     in: header
     name: Authorization
     type: apiKey

@@ -18,12 +18,12 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8081
+// @host localhost:8082
 // @BasePath /
 // @securityDefinitions.apiKey ApiKeyAuth
 // @in header
 // @name Authorization
-// @description JWT Token
+// @description JWT Token (format: Bearer <token>)
 
 func main() {
 	config.ConnectDatabase()
